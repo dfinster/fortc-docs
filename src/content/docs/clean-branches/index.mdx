@@ -1,0 +1,55 @@
+---
+title: clean-branches
+sidebar:
+  label: Overview
+description: A convenience wrapper around standard Git commands for pruning local branches whose upstreams have disappeared
+---
+Do you have a lot of local branches that have been deleted on the remote server, but still linger in your local repository? This script helps you clean up those branches safely.
+
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip">
+
+Download the script from [GitHub](https://github.com/dfinster/clean-branches).
+
+</Aside>
+
+
+### What the script does — step-by-step
+
+| Step | Command                          | Effect                                                                                                                                                                                                                             |                                                                                                                                                           |
+|------|----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1    | `set -euo pipefail`              | Exit on the first error (`-e`), treat unset variables as errors (`-u`), and make pipelines fail if any element fails (`pipefail`).                                                                                                 |                                                                                                                                                           |
+| 2    | `git fetch --prune`              | Updates all remotes _and_ removes any **remote-tracking** branches that have been deleted on the server (e.g., `origin/feature-x`).                                                                                                |                                                                                                                                                           |
+| 3    | \`git branch -vv …               | grep 'gone]'\`                                                                                                                                                                                                                     | Builds the array `gone_branches`: local branches whose _upstream_ (remote-tracking) reference was just pruned and now shows “_gone_” in `git branch -vv`. |
+| 4    | If none found                    | Prints _“No branches with gone upstream found.”_ and exits.                                                                                                                                                                        |                                                                                                                                                           |
+| 5    | Print the list                   | Echoes the branch names so you can see what’s about to happen.                                                                                                                                                                     |                                                                                                                                                           |
+| 6    | `git branch --merged` vs. list   | Splits the “gone” branches into:  _merged\_branches_ — already fully merged into **HEAD** (typically `main`) and therefore safe for `git branch -d`;  _unmerged\_branches_ — contain commits that are **not** reachable from HEAD. |                                                                                                                                                           |
+| 7    | Prompt to delete merged branches | For each merged branch it runs `git branch -d` **interactively** (`xargs -0 -n1 -p …`). You have to press `y` (or `n`) for every deletion.                                                                                         |                                                                                                                                                           |
+| 8    | Report unmerged branches         | Merely prints them and warns they would need `git branch -D` (force delete) but does **not** delete them.                                                                                                                          |                                                                                                                                                           |
+
+### Is it “safe”?
+
+![Is it safe?](../../../assets/marathon-man.jpeg)
+
+- **Nothing happens unless you answer “y”** at the first prompt, and then you still get a _second_ prompt for every branch because of `xargs -p`.
+- It never touches the remote server — only local branch references.
+- It uses `git branch -d`, which _refuses_ to delete a branch that is not fully merged into the current HEAD.
+  In other words, even if the script’s “merged” test were wrong, Git itself will still protect you.
+
+So, operationally, it is about as safe as such a cleanup script can be.
+
+### Possible negative outcomes / caveats
+
+| Risk                                         | How it could happen                                                                                                                                                                                                    | Mitigation / recovery                                                                                                                 |
+|----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| **Accidental loss of a useful local branch** | You approve deletion, then realise later you still needed it (e.g., for an in-progress rebase).                                                                                                                        | The branch tip is still in `git reflog` for 90 days by default; you can `git reflog`, find the commit, and `git branch <name> <SHA>`. |
+| **False “merged” classification**            | Very rare, but could occur if you’re on a branch other than the usual integration branch (`main`) when you run the script, because `git branch --merged` compares against _current HEAD_.                              | Run the script from your primary integration branch, or change `git branch --merged` to `--merged main`.                              |
+| **Remote renamed / forked**                  | If a teammate renamed the remote branch and pushed it elsewhere, your local branch now shows “gone” even though work continues under a new name. Deleting it means you lose the convenient reflog link to its history. | Double-check the printed list before confirming; if in doubt, answer **N** and investigate.                                           |
+| **Edge-case branch names**                   | Branch names containing newlines or unusual bytes could confuse text processing (though the script is largely null-delimited).                                                                                         | Unlikely in normal workflows; Git itself discourages such names.                                                                      |
+| Script aborts mid-way                        | Because of `set -euo pipefail`, any unexpected error (e.g., network hiccup during `git fetch`) terminates the script. Nothing is partially deleted.                                                                    | Just re-run after fixing the root cause.                                                                                              |
+
+### Bottom line
+
+_The script is a convenience wrapper around standard Git commands for pruning local branches whose upstreams have disappeared._
+If you review the printed branch list and confirm only what you truly want to delete — ideally while checked out on `main` or `develop` — the worst-case consequence is deleting a branch you later decide you want, which is recoverable via `git reflog` or by fetching it again if it still exists on a remote.

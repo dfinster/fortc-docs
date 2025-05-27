@@ -1,0 +1,51 @@
+---
+title: mkwww
+sidebar:
+  label: Overview
+description: An SSG implemented in bash
+---
+A minimal static Markdown-to-HTML blog generator, written in bash, with a Python hot-reloading dev server. It's the dumbest thing that could possibly work.
+
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip">
+
+See the project on [GitHub](https://github.com/dfinster/mkwww).
+
+</Aside>
+
+- Converts Markdown in `/posts` to static HTML in `/output`
+- Designed to deploy at Cloudflare
+- Frontmatter is in YAML.
+
+| Key           | Description                       | Required? |
+| ------------- | ----------------------------------| ----------|
+| `title`       | Page title                        | Yes       |
+| `description` | The OpenGraph description         | Yes       |
+| `date`        | Publication date                  | No        |
+| `subtitle`    | Page subtitle                     | No        |
+| `unlisted`    | `true` suppress the index listing | No        |
+
+Posts are listed in `index.html`, newest first. Undated posts appear last.
+
+## Prerequisites
+
+To run `mkwww.sh`:
+
+- Set `config.sh` to your values
+- Install [Pandoc](https://github.com/jgm/pandoc)
+- Have a `bash` shell with `awk`, `sed`, and other other typical GNU tools
+- When deploying at Cloudflare, set `"$CF_PAGES" = "true"` in the Cloudflare build configuration. This triggers the script to install Pandoc in the build container, and skip the debouncing logic used by the hot reload server.
+- Run `mkwww.sh` in the root of the repo. It will create an `output` directory with the generated HTML files.
+- Install a python virtual environment with `pip install -r requirements.txt` to run the hot reload server. This is optional, but recommended for local development. Or, use `direnv` to create a virtual environment automatically based on the `.envrc` file.
+- Run the hot reloading dev server with `./dev-server.py`. This will watch for changes in the `posts` directory and automatically rebuild the HTML files when changes are detected.
+
+## Usage
+
+Run the script in the repo's root:
+
+```bash
+$ ./mkwww.sh
+```
+
+View local output in a browser: `./output/index.html`
