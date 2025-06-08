@@ -37,19 +37,38 @@ The Antidote plugins handle all necessary setup steps automatically.
    - [![Visual Studio Code](https://img.shields.io/badge/VS_Code-Install-blue?logo=visualstudiocode&logoColor=white)](https://code.visualstudio.com/download)
    - [![nvm](https://img.shields.io/badge/nvm-Install-blue?logo=nvm&logoColor=white)](https://github.com/nvm-sh/nvm)
 
-2. Install these with Homebrew.
+1. Temporarily activate brew in your terminal session. (The Antidote plugins handle this permanently in a later step.)
+
+    ```zsh
+    $ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    ```
+1. Install nvm, atuin, direnv, eza, and pyenv with Homebrew.
+
+   ```zsh
+   $ brew install nvm atuin direnv eza pyenv
+   ```
+
+1. (optional) If you want iTerm2, install it with Homebrew Cask.
+
     ```zsh
     $ brew install nvm atuin direnv eza pyenv
     $ brew install --cask iterm2
     ```
 
-3. Install Node.js with nvm.
+1. Install Node.js with nvm.
+
     ```zsh
     $ nvm install --lts
     $ nvm use --lts
     ```
 
-4. Install Yarn v4 (Berry) globally.
+1. Upgrade npm to the latest version.
+
+    ```zsh
+    $ npm install -g npm
+    ```
+
+1. Install Yarn v4 (Berry) globally.
     ```zsh
     $ corepack enable
     $ npm install -g yarn
