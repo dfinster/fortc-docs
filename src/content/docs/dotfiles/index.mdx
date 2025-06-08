@@ -4,13 +4,19 @@ sidebar:
   label: Overview
 description: A project that manages personal dotfiles
 ---
-This is my customized version of [`getantidote/zdotdir`](https://github.com/getantidote/zdotdir), extended to manage other personal dotfiles in addition to Zsh configuration.
-
 import { Aside } from '@astrojs/starlight/components';
+
+This is my customized version of [`getantidote/zdotdir`](https://github.com/getantidote/zdotdir), extended to manage as many of my personal dotfiles as possible. See the project on [GitHub](https://github.com/dfinster/dotfiles).
 
 <Aside type="tip">
 
-See the project on [GitHub](https://github.com/dfinster/dotfiles).
+If you aren't using Zsh, this won't work for you. To switch to Zsh on Ubuntu:
+
+```bash
+$ sudo apt update && \
+  sudo apt install zsh && \
+  chsh -s $(which zsh)
+```
 
 </Aside>
 
@@ -18,9 +24,12 @@ See the project on [GitHub](https://github.com/dfinster/dotfiles).
 
 Install the following tools before proceeding with the setup:
 
-> **Note:**
-> Ignore any post-installation configuration instructions displayed by the tools listed below.
-> Antidote plugins will handle all necessary setup automatically.
+<Aside type="note">
+
+Ignore any post-installation configuration instructions displayed by the tools listed below.
+The Antidote plugins handle all necessary setup steps automatically.
+
+</Aside>
 
 1. Install these by following the links:
 
@@ -30,20 +39,20 @@ Install the following tools before proceeding with the setup:
 
 2. Install these with Homebrew.
     ```zsh
-    brew install nvm atuin direnv eza pyenv
-    brew install --cask iterm2
+    $ brew install nvm atuin direnv eza pyenv
+    $ brew install --cask iterm2
     ```
 
 3. Install Node.js with nvm.
     ```zsh
-    nvm install --lts
-    nvm use --lts
+    $ nvm install --lts
+    $ nvm use --lts
     ```
 
 4. Install Yarn v4 (Berry) globally.
     ```zsh
-    corepack enable
-    npm install -g yarn
+    $ corepack enable
+    $ npm install -g yarn
     ```
 
 ## Install dotfiles
@@ -52,13 +61,13 @@ Run these commands in your terminal:
 
 1. Make a backup directory:
     ```zsh
-    mkdir -p ~/dotfiles_backup
+    $ mkdir -p ~/dotfiles_backup
     ```
 
 1. Back up existing dotfiles:
 
     ```zsh
-    find ~ -maxdepth 1 '(' \
+    $ find ~ -maxdepth 1 '(' \
         -name ".gitconfig" -o \
         -name ".zshrc" -o \
         -name ".zshenv" -o \
@@ -75,12 +84,12 @@ Run these commands in your terminal:
 1. Clone this project into `~/.config/dotfiles`:
 
     ```zsh
-    git clone https://github.com/dfinster/dotfiles ~/.config/dotfiles
+    $ git clone https://github.com/dfinster/dotfiles ~/.config/dotfiles
     ```
 
 1. Bootstrap the dotfiles from your `~/.zshenv`.
     ```zsh
-    echo ". ~/.config/dotfiles/zsh/.zshenv" > ~/.zshenv
+    $ echo ". ~/.config/dotfiles/zsh/.zshenv" > ~/.zshenv
     ```
 
 ## Git Configuration
