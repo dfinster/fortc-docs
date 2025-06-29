@@ -115,3 +115,84 @@ The `.gitignore_global` file instructs Git to ignore these file and directories 
 - **`*.local.*`** - Local configuration files
 - **`*.local`** - Local directories
 - **`.DS_Store`** - macOS Finder metadata files
+
+## Dotfiles Startup Sequence
+
+```mermaid
+flowchart TD
+    A[Shell Start] --> B{Shell Type?}
+
+    B -->|Always| C[.zshenv]
+    B -->|Login Shell| D[.zprofile]
+    B -->|Interactive| E[.zshrc]
+
+    C --> C1[Set XDG directories]
+    C1 --> C2[Export ZDOTDIR, GIT_CONFIG_GLOBAL, ATUIN_CONFIG_DIR]
+    C2 --> C3[Set VISUAL/EDITOR to code-wait]
+    C3 --> C4[Configure PATH]
+    C4 --> C5{Interactive?}
+    C5 -->|Yes| C6[setup_gitconfig_symlink]
+    C5 -->|No| F[Continue to next file]
+    C6 --> F
+
+    D --> D1[Load OrbStack integration]
+    D1 --> F
+
+    E --> E1[Load Powerlevel10k instant prompt]
+    E1 --> E2[Setup .zfunctions autoload]
+    E2 --> E3[Load .zstyles]
+    E3 --> E4{Antidote exists?}
+    E4 -->|No| E5[Clone Antidote]
+    E4 -->|Yes| E6[Load Antidote]
+    E5 --> E6
+    E6 --> E7[Load plugins from .zsh_plugins.txt]
+    E7 --> E8[Source .zshrc.d/*.zsh files]
+    E8 --> E9[Load .p10k.zsh config]
+
+    E7 --> P1[Plugin Loading]
+    P1 --> P2[ez-compinit - Fast completion]
+    P2 --> P3[zsh-completions]
+    P3 --> P4[VS Code integration]
+    P4 --> P5[Editor keybindings]
+    P5 --> P6[256 color support]
+    P6 --> P7[Powerlevel10k theme]
+    P7 --> P8[Syntax highlighting]
+    P8 --> P9[Auto-suggestions]
+    P9 --> P10[Git plugin]
+    P10 --> P11[NVM, Yarn, iTerm2, Eza, Direnv]
+    P11 --> P12[Atuin history]
+    P12 --> P13[code-wait helper]
+
+    E8 --> M1[Modular Config Loading]
+    M1 --> M2[options.zsh - Shell options]
+    M2 --> M3[aliases.zsh - Command aliases]
+    M3 --> M4[brew.zsh - Homebrew setup]
+    M4 --> M5[orbstack.zsh - OrbStack integration]
+
+    F --> G[Shell Ready]
+    E9 --> G
+    P13 --> G
+    M5 --> G
+
+    style A fill:#e1f5fe
+    style G fill:#c8e6c9
+    style C fill:#fff3e0
+    style D fill:#fff3e0
+    style E fill:#fff3e0
+    style P1 fill:#f3e5f5
+    style M1 fill:#e8f5e8
+```
+
+## Loading Order Summary
+
+1. **Always loaded**: `.zshenv` - Environment setup, XDG directories, Git symlink
+2. **Login shells**: `.zprofile` - OrbStack integration
+3. **Interactive shells**: `.zshrc` - Plugins, themes, and modular configurations
+
+### Key Components
+
+- **Environment**: XDG directories, PATH, editor configuration
+- **Git Integration**: Auto-symlink ~/.gitconfig for compatibility
+- **Plugin Manager**: Antidote loads plugins from `.zsh_plugins.txt`
+- **Modular Config**: Auto-sources all `.zshrc.d/*.zsh` files
+- **Theme**: Powerlevel10k with custom configuration
