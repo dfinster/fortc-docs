@@ -6,6 +6,15 @@ import starlightClientMermaid from "@pasqal-io/starlight-client-mermaid";
 
 // https://astro.build/config
 export default defineConfig({
+  // This disables Node.js experimental type stripping by configuring esbuild
+  // to target 'esnext', which prevents the experimental feature from being used.
+  // Resolves "(node:54497) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time"
+  vite: {
+    esbuild: {
+      target: 'esnext'
+    }
+  },
+
   integrations: [
     starlight({
       title: "David's Projects",
