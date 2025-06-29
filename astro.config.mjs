@@ -57,36 +57,7 @@ export default defineConfig({
           dark: { flavor: "macchiato", accent: "mauve" },
           light: { flavor: "latte", accent: "mauve" },
         }),
-        starlightClientMermaid({
-          mermaidConfig: {
-            theme: "base",
-            themeVariables: {
-              // Light theme (Catppuccin Latte)
-              primaryColor: "#8839ef",
-              primaryTextColor: "#4c4f69",
-              primaryBorderColor: "#1e66f5",
-              lineColor: "#6c6f85",
-              secondaryColor: "#1e66f5",
-              tertiaryColor: "#df8e1d",
-              background: "#eff1f5",
-              mainBkgColor: "#eff1f5",
-              secondBkgColor: "#dce0e8",
-              tertiaryBkgColor: "#bcc0cc",
-              // Dark theme support
-              darkMode: true,
-              primaryColorDark: "#cba6f7",
-              primaryTextColorDark: "#cdd6f4",
-              primaryBorderColorDark: "#89b4fa",
-              lineColorDark: "#6c7086",
-              secondaryColorDark: "#89b4fa",
-              tertiaryColorDark: "#f9e2af",
-              backgroundDark: "#1e1e2e",
-              mainBkgColorDark: "#1e1e2e",
-              secondBkgColorDark: "#313244",
-              tertiaryBkgColorDark: "#45475a"
-            }
-          }
-        }),
+        starlightClientMermaid({ }),
       ],
       sidebar: [
         {
