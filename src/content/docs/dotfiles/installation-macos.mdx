@@ -1,65 +1,35 @@
 ---
-title: Linux Dotfiles Installation
+title: macOS Dotfiles Installation
 sidebar:
-  label: Linux Installation
-  order: 3
-description: How to install dotfiles on Linux systems
+  label: macOS Installation
+  order: 2
+description: How to install dotfiles on macOS systems
 ---
 import { Aside } from '@astrojs/starlight/components';
 
-**Dotfiles is only designed and supported on macOS.**
-
-However, it should work on most Linux distributions with some minor adjustments. You'll need to fork the repository and make some changes to the configuration files.
-
-The installation process is similar to macOS, but there are a few differences in the setup, especially regarding package management and SSH key management. In particular, Dotfiles uses 1Password on macOS as the ssh key manager. On Linux, you'll need to change this even if you use 1Password because the link to 1Password integration is different. The rest of the setup should work as expected.
-
-I have only tested this on Ubuntu, and it works for me. The instructions for other distributions were written by AI, and I haven't tested them. They may work, but I can't guarantee it. If you use a different distribution, you may need to adjust the instructions accordingly.
-
-If you have problems, please [open an issue](https://github.com/dfinster/dotfiles/issues) and I'll consider how to fix it. No promises.
+**Dotfiles is designed and fully supported on macOS.** This guide provides step-by-step instructions for installing dotfiles on macOS systems.
 
 ## Prerequisites
 
 Dotfiles assumes there are several tools already installed on your system:
 
-- **Zsh**: The default shell for Dotfiles.
-- **Curl**: For downloading scripts and packages.
-- **Git**: For version control and managing dotfiles.
-- **Homebrew**: A package manager for Linux, used to install additional tools and dependencies.
+- **Zsh**: The default shell for Dotfiles (pre-installed on macOS).
+- **Curl**: For downloading scripts and packages (pre-installed on macOS).
+- **Git**: For version control and managing dotfiles (pre-installed on macOS).
+- **1Password**: For secure SSH key management. If you don't have 1Password, you should fork this repo and modify it to use your preferred SSH key management solution.
+
+The guide explains how to install the following tools, which are essential for Dotfiles:
+
+- **Homebrew**: A package manager for macOS, used to install additional tools and dependencies.
 - **Atuin, direnv, eza, and pyenv**: Essential tools for managing shell history, environment variables, file listings, and Python versions.
 - **Visual Studio Code**: The primary code editor for Dotfiles.
 - **Node.js and Yarn**: For JavaScript development (optional, but recommended).
 
 If you don't have these, install them using the instructions below.
 
-### Install Zsh and basic tools
+### Install Homebrew
 
-Install Zsh, Curl, and Git if they are not already installed.
-
-#### Ubuntu/Debian
-
-```bash
-$ sudo apt update && \
-   sudo apt install zsh curl git && \
-   chsh -s $(which zsh)
-```
-
-#### Fedora
-
-```bash
-$ sudo dnf install zsh curl git && \
-   chsh -s $(which zsh)
-```
-
-#### Arch Linux
-
-```bash
-$ sudo pacman -S zsh curl git && \
-   chsh -s $(which zsh)
-```
-
-### Install Homebrew for Linux
-
-Homebrew is a package manager that simplifies the installation of software on Linux systems.
+Homebrew is a package manager that simplifies the installation of software on macOS systems.
 
 ```bash
 $ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -68,10 +38,10 @@ $ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/
 Activate Homebrew in your current session. (This is a temporary setup step. When Dotfiles is fully installed, it will automatically activate Homebrew in future sessions.)
 
 ```bash
-$ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+$ eval "$(/opt/homebrew/bin/brew shellenv)"
 ```
 
-### Atuin, direnv, eza, and pyenv
+### Install atuin, direnv, eza, and pyenv
 
 - `atuin` is a command-line tool for managing your shell history.
 - `direnv` allows you to set up environment variables per directory.
@@ -82,34 +52,23 @@ $ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 $ brew install atuin direnv eza pyenv
 ```
 
-### Visual Studio Code
+### Install Visual Studio Code
 
 Dotfiles assumes that VS Code is the primary code editor. If you prefer another editor, you should consider forking this repo and modifying it to suit your needs.
 
-#### Ubuntu/Debian
-
 ```bash
-$ wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
-$ sudo install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/
-$ sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
-$ sudo apt update && sudo apt install code
+$ brew install --cask visual-studio-code
 ```
 
-#### Fedora
+### Install iTerm2 (optional)
+
+For a better terminal experience with advanced features:
 
 ```bash
-$ sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-$ sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
-$ sudo dnf install code
+$ brew install --cask iterm2
 ```
 
-#### Arch Linux
-
-```bash
-$ yay -S visual-studio-code-bin
-```
-
-### Node.js and Yarn
+### Install Node.js and Yarn
 
 Dotfiles assumes you'll want to use Node.js and Yarn for JavaScript development. If you don't need these, you can skip this section.
 
@@ -166,11 +125,33 @@ Next, create `~/.ssh/allowed_signers` with your SSH public key to sign commits.
 you@example.com ssh-ed25519 AAAAC3...
 ```
 
+## Set up 1Password SSH integration
+
+1Password manages your SSH keys and provides an SSH agent, allowing you to use your SSH keys securely without needing to store them in plaintext on your machine. To set up 1Password for SSH key management:
+
+1. Enable the SSH agent in 1Password (Settings → Developer → SSH Agent)
+1. Configure SSH to use 1Password by adding to `~/.ssh/config`:
+
+```bash
+Host *
+    IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+```
+
+## Install a nerd font
+
+Install a nerd font to enable icons in your terminal and VS Code. Nerd fonts are patched fonts that include additional glyphs and icons, making them suitable for use with PowerLevel10k and other terminal themes. Fira Code is a popular choice, but you can choose any nerd font you prefer. You can install Fira Code with Homebrew, or [download a different one manually](https://www.nerdfonts.com).
+
+```bash
+$ brew install --cask font-fira-code-nerd-font
+```
+
+Next, [configure iTerm](https://iterm2.com/documentation-fonts.html) to use the nerd font, and [configure VS Code](https://code.visualstudio.com/docs/terminal/appearance).
+
 ## Install Dotfiles
 
 To install Dotfiles, you'll back up your existing dotfiles, clone the Dotfiles repository, and set up the configuration files. This process will ensure that your environment is ready to use the Dotfiles setup.
 
-### Backup Existing Dotfiles
+### Backup existing files
 
 Before installing Dotfiles, it's a good idea to back up your existing dotfiles. The following commands create a backup directory and move your existing dotfiles into it.
 
@@ -184,17 +165,17 @@ Back up existing dotfiles.
 
 ```bash
 $ find ~ -maxdepth 1 '(' \
-      -name ".gitconfig" -o \
-      -name ".zshrc" -o \
-      -name ".zshenv" -o \
-      -name ".zprofile" -o \
-      -name ".zlogin" -o \
-      -name ".zlogout" -o \
-      -name ".zsh_sessions" -o \
-      -name ".zsh_history" -o \
-      -name ".zsh_history.*" -o \
-      -name ".zcompdump*" \
-      ')' -exec mv {} ~/dotfiles_backup/ \;
+    -name ".gitconfig" -o \
+    -name ".zshrc" -o \
+    -name ".zshenv" -o \
+    -name ".zprofile" -o \
+    -name ".zlogin" -o \
+    -name ".zlogout" -o \
+    -name ".zsh_sessions" -o \
+    -name ".zsh_history" -o \
+    -name ".zsh_history.*" -o \
+    -name ".zcompdump*" \
+    ')' -exec mv {} ~/dotfiles_backup/ \;
 ```
 
 ### Clone the Dotfiles repository
@@ -217,29 +198,7 @@ $ echo "source ~/.config/dotfiles/zsh/.zshenv" > ~/.zshenv
 
 Restart your terminal to activate the new configuration. If everything is set up correctly, you should see the PowerLevel10k prompt and have access to all the tools installed by Dotfiles.
 
-## Optional Linux-Specific Setup
-
-### Terminal emulator
-
-Consider installing a terminal emulator with better features like ligatures, transparency, and GPU acceleration. Popular choices include:
-
-- **Alacritty**: A fast, GPU-accelerated terminal emulator.
-- **Kitty**: A feature-rich terminal emulator with support for ligatures and graphics.
-- **Tilix**: A tiling terminal emulator that supports multiple panes and tabs.
-
-### Nerd font
-
-Install a nerd font for proper icon display.
-
-```bash
-$ wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/FiraCode.zip
-$ unzip FiraCode.zip -d ~/.local/share/fonts/
-$ fc-cache -fv
-```
-
-Configure your terminal to use the nerd font and set it in VS Code preferences.
-
-### Configure PowerLevel10k
+## Optional: Configure PowerLevel10k
 
 PowerLevel10k is a theme for Zsh that provides a beautiful and informative prompt. If you don't like the configuration generated by Dotfiles, you can customize it.
 
@@ -249,5 +208,6 @@ $ p10k configure
 
 ## Troubleshooting
 
-- If you encounter permission issues with Homebrew, ensure `/home/linuxbrew/.linuxbrew` is owned by your user
-- If zsh doesn't activate after `chsh`, log out and log back in
+- If you encounter issues with Homebrew permissions, run `sudo chown -R $(whoami) /usr/local/var/homebrew`
+- If zsh doesn't activate after installation, restart your terminal or log out and log back in
+- For 1Password SSH integration issues, ensure 1Password is running and SSH agent is enabled in preferences
