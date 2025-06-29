@@ -32,7 +32,7 @@ The Antidote plugins handle all necessary setup steps automatically.
    - [![Visual Studio Code](https://img.shields.io/badge/VS_Code-Install-blue?logo=visualstudiocode&logoColor=white)](https://code.visualstudio.com/download)
    - [![nvm](https://img.shields.io/badge/nvm-Install-blue?logo=nvm&logoColor=white)](https://github.com/nvm-sh/nvm)
 
-1. Temporarily activate brew in your terminal session. (The Antidote plugins handle this permanently in a later step.)
+1. Temporarily activate brew in your terminal session. (The Antidote plugin handles this permanently in a later step.)
 
     ```zsh
     $ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
@@ -43,7 +43,7 @@ The Antidote plugins handle all necessary setup steps automatically.
    $ brew install nvm atuin direnv eza pyenv
    ```
 
-1. (optional) If you want iTerm2, install it with Homebrew Cask.
+1. (optional, macOS only) If you want iTerm2, install it with Homebrew Cask.
 
     ```zsh
     $ brew install nvm atuin direnv eza pyenv
@@ -101,9 +101,10 @@ Run these commands in your terminal:
     $ git clone https://github.com/dfinster/dotfiles ~/.config/dotfiles
     ```
 
-1. Bootstrap the dotfiles from your `~/.zshenv`.
+1. Bootstrap the dotfiles from `~/.zshenv`.
+
     ```zsh
-    $ echo ". ~/.config/dotfiles/zsh/.zshenv" > ~/.zshenv
+    $ echo "source ~/.config/dotfiles/zsh/.zshenv" > ~/.zshenv
     ```
 
 ## Git Configuration
@@ -112,6 +113,7 @@ Git configuration is split between a local file and a global file.
 The local file is for user and machine specific settings, while the global file contains shared settings.
 
 1. Create `~/.gitconfig.local` with a user section containing your `name`, `email`, and `signingkey`.
+
     ```zsh
     [user]
         name = Your Name
@@ -122,6 +124,7 @@ The local file is for user and machine specific settings, while the global file 
     All other git options are found in `$ZDOTDIR/.gitconfig`.
 
 1. Create `~/.ssh/allowed_signers` with your SSH public key to sign commits.
+
     ```zsh
     you@example.com ssh-ed25519 AAAAC3 ...
     ```

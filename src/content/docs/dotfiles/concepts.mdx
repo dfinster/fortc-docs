@@ -116,83 +116,93 @@ The `.gitignore_global` file instructs Git to ignore these file and directories 
 - **`*.local`** - Local directories
 - **`.DS_Store`** - macOS Finder metadata files
 
-## Dotfiles Startup Sequence
+## Interactive Login Shell Startup Flow
 
 ```mermaid
 flowchart TD
-    A[Shell Start] --> B{Shell Type?}
+    A[Shell Start] --> B[Load .zshenv]
 
-    B -->|Always| C[.zshenv]
-    B -->|Login Shell| D[.zprofile]
-    B -->|Interactive| E[.zshrc]
+    B --> C[Set EXTENDED_GLOB option]
+    C --> D[Export XDG directories]
+    D --> E[Export DOTFILES path]
+    E --> F[Set ZDOTDIR to $DOTFILES/zsh]
+    F --> G[Set GIT_CONFIG_GLOBAL]
+    G --> H[Set ATUIN_CONFIG_DIR]
+    H --> I[Export VS Code editor vars]
+    I --> J[Set PATH with user/local/homebrew bins]
+    J --> K[Remove PATH duplicates]
+    K --> L{Interactive shell?}
 
-    C --> C1[Set XDG directories]
-    C1 --> C2[Export ZDOTDIR, GIT_CONFIG_GLOBAL, ATUIN_CONFIG_DIR]
-    C2 --> C3[Set VISUAL/EDITOR to code-wait]
-    C3 --> C4[Configure PATH]
-    C4 --> C5{Interactive?}
-    C5 -->|Yes| C6[setup_gitconfig_symlink]
-    C5 -->|No| F[Continue to next file]
-    C6 --> F
+    L -->|Yes| M[Call setup_gitconfig_symlink]
+    L -->|No| END1[End .zshenv]
 
-    D --> D1[Load OrbStack integration]
-    D1 --> F
+    M --> N{~/.gitconfig symlink exists?}
+    N -->|Yes| O{Points to correct target?}
+    N -->|No| P[Check target file exists]
 
-    E --> E1[Load Powerlevel10k instant prompt]
-    E1 --> E2[Setup .zfunctions autoload]
-    E2 --> E3[Load .zstyles]
-    E3 --> E4{Antidote exists?}
-    E4 -->|No| E5[Clone Antidote]
-    E4 -->|Yes| E6[Load Antidote]
-    E5 --> E6
-    E6 --> E7[Load plugins from .zsh_plugins.txt]
-    E7 --> E8[Source .zshrc.d/*.zsh files]
-    E8 --> E9[Load .p10k.zsh config]
+    O -->|Yes| Q[Skip symlink creation]
+    O -->|No| P
 
-    E7 --> P1[Plugin Loading]
-    P1 --> P2[ez-compinit - Fast completion]
-    P2 --> P3[zsh-completions]
-    P3 --> P4[VS Code integration]
-    P4 --> P5[Editor keybindings]
-    P5 --> P6[256 color support]
-    P6 --> P7[Powerlevel10k theme]
-    P7 --> P8[Syntax highlighting]
-    P8 --> P9[Auto-suggestions]
-    P9 --> P10[Git plugin]
-    P10 --> P11[NVM, Yarn, iTerm2, Eza, Direnv]
-    P11 --> P12[Atuin history]
-    P12 --> P13[code-wait helper]
+    P --> R{Target exists and is file?}
+    R -->|No| S[Show warning, skip symlink]
+    R -->|Yes| T{Existing ~/.gitconfig is file?}
 
-    E8 --> M1[Modular Config Loading]
-    M1 --> M2[options.zsh - Shell options]
-    M2 --> M3[aliases.zsh - Command aliases]
-    M3 --> M4[brew.zsh - Homebrew setup]
-    M4 --> M5[orbstack.zsh - OrbStack integration]
+    T -->|Yes| U[Backup existing file]
+    T -->|No| V[Create symlink]
+    U --> V
+    V --> W[Show success message]
 
-    F --> G[Shell Ready]
-    E9 --> G
-    P13 --> G
-    M5 --> G
+    Q --> X[Continue to .zprofile]
+    S --> X
+    W --> X
 
-    style A fill:#e1f5fe
-    style G fill:#c8e6c9
-    style C fill:#fff3e0
-    style D fill:#fff3e0
-    style E fill:#fff3e0
-    style P1 fill:#f3e5f5
-    style M1 fill:#e8f5e8
+    X --> Y[Load .zprofile]
+    Y --> Z[Session setup for login shells]
+    Z --> AA[Continue to .zshrc]
+
+    AA --> BB[Load .zshrc]
+    BB --> CC{P10k instant prompt cached?}
+    CC -->|Yes| DD[Source P10k instant prompt]
+    CC -->|No| EE[Skip instant prompt]
+
+    DD --> FF[Set ZFUNCDIR path]
+    EE --> FF
+    FF --> GG[Add .zfunctions to fpath]
+    GG --> HH[Autoload all functions from .zfunctions]
+    HH --> II[Source .zstyles]
+
+    II --> LL{Antidote directory exists?}
+    LL -->|No| MM[Git clone antidote]
+    LL -->|Yes| NN[Skip antidote clone]
+
+    MM --> OO[Source antidote.zsh]
+    NN --> OO
+    OO --> PP[Run antidote load]
+
+    PP --> QQ[Load plugins from .zsh_plugins.txt]
+    QQ --> RR[mattmc3/ez-compinit - Fast completion]
+    RR --> SS[zsh-users/zsh-completions]
+    SS --> TT[ohmyzsh/ohmyzsh vscode plugin]
+    TT --> UU[belak/zsh-utils editor keybindings]
+    UU --> VV[chrissicool/zsh-256color]
+    VV --> WW[romkatv/powerlevel10k theme]
+    WW --> XX[zdharma-continuum/fast-syntax-highlighting]
+    XX --> YY[zsh-users/zsh-autosuggestions]
+    YY --> ZZ[ohmyzsh git plugin]
+    ZZ --> AAA[lukechilds/zsh-nvm]
+    AAA --> BBB[ohmyzsh yarn plugin]
+    BBB --> CCC[ohmyzsh iterm2 plugin]
+    CCC --> DDD[ohmyzsh eza plugin]
+    DDD --> EEE[ohmyzsh direnv plugin]
+    EEE --> FFF[atuinsh/atuin history]
+    FFF --> GGG[Local code-wait plugin]
+
+    GGG --> HHH[Source .zshrc.d configs]
+    HHH --> III[Loop through all .zshrc.d/*.zsh files, skipping filenames starting with ~]
+
+    III --> LLL[Source .p10k.zsh theme config]
+    LLL --> WWW[Interactive shell ready]
+
+    END1 --> XXX[Non-interactive shell ready]
+
 ```
-
-## Loading Order Summary
-
-1. **Always loaded**: `.zshenv` - Environment setup, XDG directories, Git symlink
-2. **Login shells**: `.zprofile` - OrbStack integration
-3. **Interactive shells**: `.zshrc` - Plugins, themes, and modular configurations
-
-### Key Components
-
-- **Environment**: XDG directories, PATH, editor configuration
-- **Git Integration**: Auto-symlink ~/.gitconfig for compatibility
-- **Plugin Manager**: Antidote loads plugins from `.zsh_plugins.txt`
-- **Modular Config**: Auto-sources all `.zshrc.d/*.zsh` files
-- **Theme**: Powerlevel10k with custom configuration
