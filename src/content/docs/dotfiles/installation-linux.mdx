@@ -6,185 +6,249 @@ description: How to install dotfiles on Linux systems
 ---
 import { Aside } from '@astrojs/starlight/components';
 
-## Requirements
+**Dotfiles is only designed and supported on macOS.**
 
-- Linux distribution (Ubuntu, Debian, Fedora, Arch, etc.)
-- Zsh shell (will be installed if not present)
+However, it should work on most Linux distributions with some minor adjustments. You'll need to fork the repository and make some changes to the configuration files.
 
-## Install Prerequisites
+The installation process is similar to macOS, but there are a few differences in the setup, especially regarding package management and SSH key management. In particular, Dotfiles uses 1Password on macOS as the ssh key manager. On Linux, you'll need to change this even if you use 1Password because the link to 1Password integration is different. The rest of the setup should work as expected.
 
-1. **Install Zsh** (if not already installed):
+I have only tested this on Ubuntu, and it works for me. The instructions for other distributions were written by AI, and I haven't tested them. They may work, but I can't guarantee it. If you use a different distribution, you may need to adjust the instructions accordingly.
 
-   **Ubuntu/Debian:**
-   ```bash
-   $ sudo apt update && \
-     sudo apt install zsh curl git && \
-     chsh -s $(which zsh)
-   ```
+If you have problems, please [open an issue](https://github.com/dfinster/dotfiles/issues) and I'll consider how to fix it. No promises.
 
-   **Fedora:**
-   ```bash
-   $ sudo dnf install zsh curl git && \
-     chsh -s $(which zsh)
-   ```
+## Prerequisites
 
-   **Arch Linux:**
-   ```bash
-   $ sudo pacman -S zsh curl git && \
-     chsh -s $(which zsh)
-   ```
+Dotfiles assumes there are several tools already installed on your system:
 
-2. **Install Homebrew for Linux:**
-   ```bash
-   $ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
+- **Zsh**: The default shell for Dotfiles.
+- **Curl**: For downloading scripts and packages.
+- **Git**: For version control and managing dotfiles.
+- **Homebrew**: A package manager for Linux, used to install additional tools and dependencies.
+- **Atuin, direnv, eza, and pyenv**: Essential tools for managing shell history, environment variables, file listings, and Python versions.
+- **Visual Studio Code**: The primary code editor for Dotfiles.
+- **Node.js and Yarn**: For JavaScript development (optional, but recommended).
 
-3. **Install Visual Studio Code:**
+If you don't have these, install them using the instructions below.
 
-   **Ubuntu/Debian:**
-   ```bash
-   $ wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
-   $ sudo install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/
-   $ sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
-   $ sudo apt update && sudo apt install code
-   ```
+### Install Zsh and basic tools
 
-   **Fedora:**
-   ```bash
-   $ sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-   $ sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
-   $ sudo dnf install code
-   ```
+Install Zsh, Curl, and Git if they are not already installed.
 
-   **Arch Linux:**
-   ```bash
-   $ yay -S visual-studio-code-bin
-   ```
+#### Ubuntu/Debian
 
-4. **Install nvm:**
-   ```bash
-   $ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-   ```
+```bash
+$ sudo apt update && \
+   sudo apt install zsh curl git && \
+   chsh -s $(which zsh)
+```
 
-<Aside type="note">
+#### Fedora
 
-Ignore any post-installation configuration instructions displayed by the tools listed below.
-The Antidote plugins handle all necessary setup steps automatically.
+```bash
+$ sudo dnf install zsh curl git && \
+   chsh -s $(which zsh)
+```
 
-</Aside>
+#### Arch Linux
 
-## Setup Development Tools
+```bash
+$ sudo pacman -S zsh curl git && \
+   chsh -s $(which zsh)
+```
 
-1. **Activate Homebrew in your current session:**
-   ```bash
-   $ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-   ```
+### Install Homebrew for Linux
 
-2. **Install development tools with Homebrew:**
-   ```bash
-   $ brew install atuin direnv eza pyenv
-   ```
+Homebrew is a package manager that simplifies the installation of software on Linux systems.
 
-3. **Install Node.js with nvm:**
-   ```bash
-   $ source ~/.bashrc  # or restart your terminal
-   $ nvm install --lts
-   $ nvm use --lts
-   ```
+```bash
+$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
 
-4. **Upgrade npm to the latest version:**
-   ```bash
-   $ npm install -g npm
-   ```
+Activate Homebrew in your current session. (This is a temporary setup step. When Dotfiles is fully installed, it will automatically activate Homebrew in future sessions.)
 
-5. **Install Yarn v4 (Berry) globally:**
-   ```bash
-   $ corepack enable
-   $ npm install -g yarn
-   ```
+```bash
+$ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+```
 
-## Install Dotfiles
+### Atuin, direnv, eza, and pyenv
 
-Run these commands in your terminal:
+- `atuin` is a command-line tool for managing your shell history.
+- `direnv` allows you to set up environment variables per directory.
+- `eza` is a modern replacement for `ls`.
+- `pyenv` helps manage multiple Python versions.
 
-1. **Make a backup directory:**
-   ```bash
-   $ mkdir -p ~/dotfiles_backup
-   ```
+```bash
+$ brew install atuin direnv eza pyenv
+```
 
-2. **Back up existing dotfiles:**
-   ```bash
-   $ find ~ -maxdepth 1 '(' \
-       -name ".gitconfig" -o \
-       -name ".zshrc" -o \
-       -name ".zshenv" -o \
-       -name ".zprofile" -o \
-       -name ".zlogin" -o \
-       -name ".zlogout" -o \
-       -name ".zsh_sessions" -o \
-       -name ".zsh_history" -o \
-       -name ".zsh_history.*" -o \
-       -name ".zcompdump*" \
-       ')' -exec mv {} ~/dotfiles_backup/ \;
-   ```
+### Visual Studio Code
 
-3. **Clone the dotfiles repository:**
-   ```bash
-   $ git clone https://github.com/dfinster/dotfiles ~/.config/dotfiles
-   ```
+Dotfiles assumes that VS Code is the primary code editor. If you prefer another editor, you should consider forking this repo and modifying it to suit your needs.
 
-4. **Bootstrap the dotfiles from `~/.zshenv`:**
-   ```bash
-   $ echo "source ~/.config/dotfiles/zsh/.zshenv" > ~/.zshenv
-   ```
+#### Ubuntu/Debian
 
-5. **Restart your terminal or source the new configuration:**
-   ```bash
-   $ source ~/.zshenv
-   ```
+```bash
+$ wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
+$ sudo install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/
+$ sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
+$ sudo apt update && sudo apt install code
+```
+
+#### Fedora
+
+```bash
+$ sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+$ sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
+$ sudo dnf install code
+```
+
+#### Arch Linux
+
+```bash
+$ yay -S visual-studio-code-bin
+```
+
+### Node.js and Yarn
+
+Dotfiles assumes you'll want to use Node.js and Yarn for JavaScript development. If you don't need these, you can skip this section.
+
+Install Node Version Manager (nvm), a tool that allows you to manage multiple versions of Node.js easily.
+
+```bash
+$ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+```
+
+Install Node.js with nvm. This ensures you have the latest LTS version of Node.js, which is often required for many development tools and frameworks.
+
+```bash
+$ nvm install --lts
+$ nvm use --lts
+```
+
+Upgrade npm to the latest version.
+
+```bash
+$ npm install -g npm
+```
+
+Install Yarn v4 (Berry) globally.
+
+```bash
+$ corepack enable
+$ npm install -g yarn
+```
 
 ## Git Configuration
 
-Git configuration is split between a local file and a global file.
-The local file is for user and machine specific settings, while the global file contains shared settings.
+Dotfiles uses a Git configuration split between a local file and a global file. The local file is for user and machine specific settings, while the global file contains shared settings.
 
-1. **Create `~/.gitconfig.local` with your user information:**
-   ```bash
-   [user]
-       name = Your Name
-       email = you@example.com
-       signingkey = ssh-ed25519 AAAAC3...
-   ```
+### Local Git Configuration
 
-   All other git options are found in `$ZDOTDIR/.gitconfig`.
+Create `~/.gitconfig.local` with your user information. This file is used for user-specific settings that should not be shared across machines. All other git options are found in the main Dotfiles git config, `~/.config/dotfiles/git/.gitconfig`.
 
-2. **Create `~/.ssh/allowed_signers` with your SSH public key to sign commits:**
-   ```bash
-   you@example.com ssh-ed25519 AAAAC3...
-   ```
+```bash
+[user]
+      name = Your Name
+      email = you@example.com
+      signingkey = ssh-ed25519 AAAAC3...
+```
+
+<Aside>
+
+If you don't have an SSH key, see the [GitHub documentation](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#gpg-commit-signature-verification) to generate a new SSH key and adding it to your SSH agent.
+
+</Aside>
+
+### Signing Commits
+
+Dotfiles assumes you'll sign commits with SSH keys. This is a secure way to verify the authenticity of your commits. Create `~/.ssh/allowed_signers` with your SSH public key to sign commits.
+
+```bash
+you@example.com ssh-ed25519 AAAAC3...
+```
+
+## Install Dotfiles
+
+To install Dotfiles, you will back up your existing dotfiles, clone the Dotfiles repository, and set up the configuration files. This process will ensure that your environment is ready to use the Dotfiles setup.
+
+### Backup Existing Dotfiles
+
+Before installing Dotfiles, it's a good idea to back up your existing dotfiles. The following commands create a backup directory and move your existing dotfiles into it.
+
+Make a backup directory.
+
+```bash
+$ mkdir -p ~/dotfiles_backup
+```
+
+Back up existing dotfiles.
+
+```bash
+$ find ~ -maxdepth 1 '(' \
+      -name ".gitconfig" -o \
+      -name ".zshrc" -o \
+      -name ".zshenv" -o \
+      -name ".zprofile" -o \
+      -name ".zlogin" -o \
+      -name ".zlogout" -o \
+      -name ".zsh_sessions" -o \
+      -name ".zsh_history" -o \
+      -name ".zsh_history.*" -o \
+      -name ".zcompdump*" \
+      ')' -exec mv {} ~/dotfiles_backup/ \;
+```
+
+### Clone the Dotfiles repository
+
+Clone the dotfiles repository into your `~/.config/dotfiles` directory.
+
+```bash
+$ git clone https://github.com/dfinster/dotfiles ~/.config/dotfiles
+```
+
+### Create Dotfiles hook
+
+To hook Dotfiles into your Zsh configuration, create a `.zshenv` file in your home directory that sources the main configuration file. This loads Dotfiles every time you start a new Zsh session.
+
+```bash
+$ echo "source ~/.config/dotfiles/zsh/.zshenv" > ~/.zshenv
+```
+
+### Activate Dotfiles
+
+Restart your terminal to activate the new configuration. If everything is set up correctly, you should see the PowerLevel10k prompt and have access to all the tools installed by Dotfiles.
 
 ## Optional Linux-Specific Setup
 
-- **Install a terminal emulator with better features:**
-  - **Alacritty:** `brew install --cask alacritty`
-  - **Kitty:** `sudo apt install kitty` (Ubuntu) or equivalent for your distro
+### Terminal emulator
 
-- **Install a nerd font for proper icon display:**
-  ```bash
-  $ wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/FiraCode.zip
-  $ unzip FiraCode.zip -d ~/.local/share/fonts/
-  $ fc-cache -fv
-  ```
+Consider installing a terminal emulator with better features like ligatures, transparency, and GPU acceleration. Popular choices include:
 
-- **Configure your terminal to use the nerd font** and set it in VS Code preferences.
+- **Alacritty**: A fast, GPU-accelerated terminal emulator.
+- **Kitty**: A feature-rich terminal emulator with support for ligatures and graphics.
+- **Tilix**: A tiling terminal emulator that supports multiple panes and tabs.
 
-- **Run PowerLevel10k configuration:**
-  ```bash
-  $ p10k configure
-  ```
+### Nerd font
+
+Install a nerd font for proper icon display.
+
+```bash
+$ wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/FiraCode.zip
+$ unzip FiraCode.zip -d ~/.local/share/fonts/
+$ fc-cache -fv
+```
+
+Configure your terminal to use the nerd font and set it in VS Code preferences.
+
+### Configure PowerLevel10k
+
+PowerLevel10k is a theme for Zsh that provides a beautiful and informative prompt. If you don't like the configuration generated by Dotfiles, you can customize it.
+
+```bash
+$ p10k configure
+```
 
 ## Troubleshooting
 
 - If you encounter permission issues with Homebrew, ensure `/home/linuxbrew/.linuxbrew` is owned by your user
-- For WSL users, ensure you're running WSL2 for better performance
 - If zsh doesn't activate after `chsh`, log out and log back in
