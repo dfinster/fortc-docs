@@ -1,8 +1,8 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import catppuccin from "@catppuccin/starlight";
-import starlightClientMermaid from "@pasqal-io/starlight-client-mermaid";
+// import catppuccin from "@catppuccin/starlight";
+import mermaid from "astro-mermaid";
 
 // https://astro.build/config
 export default defineConfig({
@@ -11,11 +11,14 @@ export default defineConfig({
   // Resolves "(node:54497) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time"
   vite: {
     esbuild: {
-      target: 'esnext'
-    }
+      target: "esnext",
+    },
   },
 
   integrations: [
+    mermaid({
+      theme: "default",
+    }),
     starlight({
       title: "David's Projects",
       favicon: "favicon.ico",
@@ -62,11 +65,10 @@ export default defineConfig({
         },
       ],
       plugins: [
-        catppuccin({
-          dark: { flavor: "macchiato", accent: "mauve" },
-          light: { flavor: "latte", accent: "mauve" },
-        }),
-        starlightClientMermaid({ }),
+        // catppuccin({
+        //   dark: { flavor: "macchiato", accent: "mauve" },
+        //   light: { flavor: "latte", accent: "mauve" },
+        // }),
       ],
       sidebar: [
         {
