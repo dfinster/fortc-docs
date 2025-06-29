@@ -1,0 +1,190 @@
+---
+title: Linux Dotfiles Installation
+sidebar:
+  label: Linux Installation
+description: How to install dotfiles on Linux systems
+---
+import { Aside } from '@astrojs/starlight/components';
+
+## Requirements
+
+- Linux distribution (Ubuntu, Debian, Fedora, Arch, etc.)
+- Zsh shell (will be installed if not present)
+
+## Install Prerequisites
+
+1. **Install Zsh** (if not already installed):
+
+   **Ubuntu/Debian:**
+   ```bash
+   $ sudo apt update && \
+     sudo apt install zsh curl git && \
+     chsh -s $(which zsh)
+   ```
+
+   **Fedora:**
+   ```bash
+   $ sudo dnf install zsh curl git && \
+     chsh -s $(which zsh)
+   ```
+
+   **Arch Linux:**
+   ```bash
+   $ sudo pacman -S zsh curl git && \
+     chsh -s $(which zsh)
+   ```
+
+2. **Install Homebrew for Linux:**
+   ```bash
+   $ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+
+3. **Install Visual Studio Code:**
+
+   **Ubuntu/Debian:**
+   ```bash
+   $ wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
+   $ sudo install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/
+   $ sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
+   $ sudo apt update && sudo apt install code
+   ```
+
+   **Fedora:**
+   ```bash
+   $ sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+   $ sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
+   $ sudo dnf install code
+   ```
+
+   **Arch Linux:**
+   ```bash
+   $ yay -S visual-studio-code-bin
+   ```
+
+4. **Install nvm:**
+   ```bash
+   $ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+   ```
+
+<Aside type="note">
+
+Ignore any post-installation configuration instructions displayed by the tools listed below.
+The Antidote plugins handle all necessary setup steps automatically.
+
+</Aside>
+
+## Setup Development Tools
+
+1. **Activate Homebrew in your current session:**
+   ```bash
+   $ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+   ```
+
+2. **Install development tools with Homebrew:**
+   ```bash
+   $ brew install atuin direnv eza pyenv
+   ```
+
+3. **Install Node.js with nvm:**
+   ```bash
+   $ source ~/.bashrc  # or restart your terminal
+   $ nvm install --lts
+   $ nvm use --lts
+   ```
+
+4. **Upgrade npm to the latest version:**
+   ```bash
+   $ npm install -g npm
+   ```
+
+5. **Install Yarn v4 (Berry) globally:**
+   ```bash
+   $ corepack enable
+   $ npm install -g yarn
+   ```
+
+## Install Dotfiles
+
+Run these commands in your terminal:
+
+1. **Make a backup directory:**
+   ```bash
+   $ mkdir -p ~/dotfiles_backup
+   ```
+
+2. **Back up existing dotfiles:**
+   ```bash
+   $ find ~ -maxdepth 1 '(' \
+       -name ".gitconfig" -o \
+       -name ".zshrc" -o \
+       -name ".zshenv" -o \
+       -name ".zprofile" -o \
+       -name ".zlogin" -o \
+       -name ".zlogout" -o \
+       -name ".zsh_sessions" -o \
+       -name ".zsh_history" -o \
+       -name ".zsh_history.*" -o \
+       -name ".zcompdump*" \
+       ')' -exec mv {} ~/dotfiles_backup/ \;
+   ```
+
+3. **Clone the dotfiles repository:**
+   ```bash
+   $ git clone https://github.com/dfinster/dotfiles ~/.config/dotfiles
+   ```
+
+4. **Bootstrap the dotfiles from `~/.zshenv`:**
+   ```bash
+   $ echo "source ~/.config/dotfiles/zsh/.zshenv" > ~/.zshenv
+   ```
+
+5. **Restart your terminal or source the new configuration:**
+   ```bash
+   $ source ~/.zshenv
+   ```
+
+## Git Configuration
+
+Git configuration is split between a local file and a global file.
+The local file is for user and machine specific settings, while the global file contains shared settings.
+
+1. **Create `~/.gitconfig.local` with your user information:**
+   ```bash
+   [user]
+       name = Your Name
+       email = you@example.com
+       signingkey = ssh-ed25519 AAAAC3...
+   ```
+
+   All other git options are found in `$ZDOTDIR/.gitconfig`.
+
+2. **Create `~/.ssh/allowed_signers` with your SSH public key to sign commits:**
+   ```bash
+   you@example.com ssh-ed25519 AAAAC3...
+   ```
+
+## Optional Linux-Specific Setup
+
+- **Install a terminal emulator with better features:**
+  - **Alacritty:** `brew install --cask alacritty`
+  - **Kitty:** `sudo apt install kitty` (Ubuntu) or equivalent for your distro
+
+- **Install a nerd font for proper icon display:**
+  ```bash
+  $ wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/FiraCode.zip
+  $ unzip FiraCode.zip -d ~/.local/share/fonts/
+  $ fc-cache -fv
+  ```
+
+- **Configure your terminal to use the nerd font** and set it in VS Code preferences.
+
+- **Run PowerLevel10k configuration:**
+  ```bash
+  $ p10k configure
+  ```
+
+## Troubleshooting
+
+- If you encounter permission issues with Homebrew, ensure `/home/linuxbrew/.linuxbrew` is owned by your user
+- For WSL users, ensure you're running WSL2 for better performance
+- If zsh doesn't activate after `chsh`, log out and log back in
