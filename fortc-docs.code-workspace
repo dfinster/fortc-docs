@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"name": "Root",
+		},
+		{
+			"path": "src/content/docs",
+			"name": "Documentation",
+		},
+		{
+			"path": "../../.config/dotfiles",
+			"name": "Dotfiles",
+		}
+	],
+	"settings": {}
+}

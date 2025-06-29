@@ -1,40 +1,38 @@
 ---
-title: Concepts
+title: Dotfiles Concepts
 sidebar:
   label: Concepts
-description: How the system works
+description: How it works
 ---
-# Dotfiles Concepts Guide
+This document explains the concepts and startup behavior of the [**Dotfiles** repository](https://github.com/dfinster/dotfiles).
 
-This guide explains the key concepts and organization of the [dotfiles repository](https://github.com/dfinster/dotfiles).
+**Dotfiles** provides a clean, organized way to manage your shell environment and development tools. It centralizes configuration for Zsh, Git, and Atuin, allowing you to maintain a consistent setup across different machines by storing everything in a single repository.
 
-## File Organization
+This is inspired by [`getantidote/zdotdir`](https://github.com/getantidote/zdotdir) and uses Antidote to manage Zsh plugins.
 
-**dotfiles** should be cloned into in `~/.config/dotfiles` on macOS and Linux.
+## Location and startup
 
-```zsh
-$ git clone git@github.com:dfinster/dotfiles.git ~/.config/dotfiles
-```
+**Dotfiles** is designed to run from `~/.config/dotfiles`. It uses the XDG Base Directory Specification to define where configuration, data, and cache files are stored, making it easy to manage your dotfiles in a single repository.
 
-A single bootstrap file in your home directory (`~/.zshenv`) loads the entire system by sourcing the initial configuration file:
+During installation, you'll remove the majority of your existing dotfiles from your home directory, as they are now managed in this repository. A bare minimum of configuration dotfiles are stored in your home directory to bootstrap the system and set local configuration:
 
-```zsh
-. ~/.config/dotfiles/zsh/.zshenv
-```
+- `~/.zshenv` bootstraps the system.
+- `~/.gitconfig.local` sets your Git username, email, and signing key.
 
-This keeps your home directory clean and allows for easy version control.
+As much as possible is moved to `~/.config/dotfiles`, which contains all the configuration files for Zsh, Git, and Atuin. This keeps your home directory clean and organized.
 
 ## Environment
 
-The first step is to set up the environment variables that define where configuration files are stored. This is done using the XDG Base Directory Specification, which standardizes where applications should look for configuration, data, and cache files. Dotfiles sets these variables in `~/.zshenv`:
+Dotfiles sets these variables in `~/.config/dotfiles/zsh/.zshenv`:
 
-- **Config Directory** (`XDG_CONFIG_HOME`): Where applications store configuration
-- **Data Directory** (`XDG_DATA_HOME`): Where applications store persistent data
-- **Cache Directory** (`XDG_CACHE_HOME`): Where applications store temporary cache files
+- `ZDOTDIR`: Where Zsh looks for configuration files
+- `XDG_CONFIG_HOME`: Where applications store configuration
+- `XDG_DATA_HOME`: Where applications store persistent data
+- `XDG_CACHE_HOME`: Where applications store temporary cache files
+- `GIT_CONFIG_GLOBAL`: The global Git configuration file
+- `ATUIN_CONFIG_DIR`: The directory for Atuin configuration
 
-Pointing these variables to the dotfiles repository keeps your home directory clean and allows this to be managed as a single repository.
-
-In addition to Zsh, dotfiles centralizes configuration for Git and Atuin (an enhanced command history tool). This allows for a consistent environment across different tools and applications. The main directories are:
+The main directories in the repo are:
 
 - **`atuin/`** - Enhanced command history configuration
 - **`git/`** - Git configuration and global ignore patterns
@@ -61,10 +59,6 @@ The PATH is carefully constructed to prioritize user tools while maintaining sys
 
 This ensures your custom tools take precedence while keeping the system functional.
 
-### Fallback Safety
-
-If the dotfiles directory doesn't exist, the configuration provides a minimal fallback environment instead of breaking the shell. This defensive approach ensures you always have a working terminal.
-
 ## Shell Configuration
 
 The shell is configured with quality-of-life improvements:
@@ -82,8 +76,6 @@ Instead of one massive `.zshrc` file, configuration is split into logical module
 - **`brew.zsh`** - Homebrew package manager integration
 - **`options.zsh`** - Core shell behavior settings
 - **`orbstack.zsh`** - Container platform integration
-
-This modular approach makes it easy to add new functionality without cluttering the main configuration file. Each module can be enabled or disabled independently.
 
 ### Custom Functions
 
@@ -118,157 +110,8 @@ Git behavior is optimized for modern development:
 
 ### Global Ignore Patterns
 
-The `.gitignore_global` file automatically ignores common files across all repositories:
+The `.gitignore_global` file instructs Git to ignore these file and directories across all repositories:
 
-- Files starting with `local-*` for temporary/local configurations
-- Prevents accidentally committing sensitive or temporary files
-
-## Antidote Plugin Manager
-
-The configuration uses Antidote for plugin management. Antidote is a fast, self-bootstrapping Zsh plugin manager that simplifies plugin management.
-
-### Curated Plugin Selection
-
-Plugins are carefully chosen for specific purposes:
-
-#### Productivity Enhancements
-
-- **Syntax highlighting** - Visual feedback for commands
-- **Auto-suggestions** - Command completion from history
-- **Enhanced completions** - Better tab completion
-
-#### Developer Tools
-
-- **Git integration** - Git-aware features and shortcuts
-- **VS Code integration** - Terminal-editor connectivity
-- **Package manager support** - npm, yarn, etc.
-
-#### Visual Improvements
-
-- **Powerlevel10k theme** - Fast, informative prompt
-- **256-color support** - Better terminal colors
-- **File icons** - Visual file type indicators
-
-## VS Code Integration
-
-The configuration is designed around VS Code as the primary editor:
-
-- **`code-wait` wrapper** - Makes VS Code work properly in terminal
-- **Editor variables** - VISUAL, EDITOR, GIT_EDITOR all point to VS Code
-- **Git integration** - Commit messages, diffs, merges open in VS Code
-
-## Enhanced Command History
-
-Atuin replaces the default shell history with advanced features:
-
-- **Searchable history** - Find commands by prefix or content
-- **Cross-machine sync** - Share history across devices
-- **Context-aware search** - Directory-specific history with arrow keys
-- **Privacy controls** - Filters out sensitive commands
-
-## Package Manager Support
-
-Automatic integration with common development tools:
-- **Homebrew** - macOS package manager
-- **Node.js tools** - npm, yarn, nvm
-- **Container tools** - OrbStack integration
-
-
-## macOS Optimizations
-
-The configuration includes macOS-specific features:
-
-- **Homebrew environment setup** - Automatic PATH configuration
-- **Keychain integration** - Secure credential storage
-- **1Password SSH signing** - Leverages 1Password for Git security
-- **OrbStack support** - Modern container platform
-
-## Commit Signing
-
-All Git commits are automatically signed using SSH keys:
-
-- **Authentication** - Proves commits came from you
-- **Non-repudiation** - Can't deny making signed commits
-- **GitHub/GitLab integration** - Platforms show "Verified" badges
-
-## Credential Management
-
-Secure handling of authentication:
-
-- **macOS Keychain** - System-level secure storage
-- **SSH key management** - Leverages 1Password's SSH agent
-- **No plaintext secrets** - Credentials encrypted at rest
-
-## Safe Defaults
-
-Configuration choices prioritize security:
-
-- **Automatic signing** - Can't forget to sign commits
-- **SSH over HTTPS** - Uses key-based auth instead of tokens
-- **Backup preservation** - Never overwrites existing config without backup
-
-## Easy Modifications
-
-The modular structure makes customization straightforward:
-
-**Adding Aliases**: Create or edit files in `.zshrc.d/`
-**New Plugins**: Add entries to `.zsh_plugins.txt`
-**Git Settings**: Modify `git/.gitconfig`
-**Shell Options**: Edit `.zshrc.d/options.zsh`
-
-## Local Overrides
-
-Support for machine-specific configuration:
-
-- **`~/.gitconfig.local`** - Git settings that override global config
-- **Environment variables** - Can override default paths and behaviors
-- **Conditional includes** - Load different configs based on context
-
-## Plugin Management
-
-Easy to add or remove functionality:
-
-- **Add plugins** by editing `.zsh_plugins.txt`
-- **Remove plugins** by deleting lines
-- **Plugin updates** handled automatically by Antidote
-
-## Editor Integration
-
-While optimized for VS Code, easy to change:
-
-- **Modify EDITOR variables** in `.zshenv`
-- **Update wrapper scripts** in `plugins/code-wait/`
-- **Adjust Git integration** in `.gitconfig`
-
-## Productivity Gains
-
-- **Faster command entry** with auto-suggestions and history
-- **Visual feedback** with syntax highlighting and themes
-- **Quick navigation** with aliases and auto-cd
-- **Enhanced completion** for better tab completion
-
-## Consistency Across Machines
-
-- **Version-controlled configuration** ensures consistency
-- **Automatic setup** reduces manual configuration
-- **Portable environment** works the same everywhere
-
-## Understanding Your Environment
-
-1. **Check what's loaded** - Use `echo $ZDOTDIR` to see where configs live
-2. **Explore the structure** - Look through `.zshrc.d/` to see what's available
-3. **Test features** - Try auto-suggestions, syntax highlighting, Git integration
-
-## Making Changes
-
-1. **Start small** - Add an alias or modify an existing setting
-2. **Use the modular system** - Create new files in `.zshrc.d/` for new functionality
-3. **Test thoroughly** - Open a new shell to test changes
-
-## Troubleshooting
-
-1. **Check for errors** - Shell errors usually indicate syntax issues
-2. **Disable problematic modules** - Remove or rename files in `.zshrc.d/`
-3. **Use fallback mode** - Rename the dotfiles directory to get minimal shell
-
-This dotfiles configuration provides a solid foundation for a productive development environment while remaining customizable and maintainable.
+- **`*.local.*`** - Local configuration files
+- **`*.local`** - Local directories
+- **`.DS_Store`** - macOS Finder metadata files
