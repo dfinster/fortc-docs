@@ -2,6 +2,7 @@
 title: Dotfiles Concepts
 sidebar:
   label: Concepts
+  order: 4
 description: How it works
 ---
 This document explains the concepts and startup behavior of the [**Dotfiles** repository](https://github.com/dfinster/dotfiles).
@@ -123,44 +124,31 @@ flowchart TD
     A[Shell Start] --> B[Load .zshenv]
 
     B --> C[Set EXTENDED_GLOB option]
-    C --> D[Export XDG directories]
-    D --> E[Export DOTFILES path]
-    E --> F[Set ZDOTDIR to $DOTFILES/zsh]
-    F --> G[Set GIT_CONFIG_GLOBAL]
-    G --> H[Set ATUIN_CONFIG_DIR]
-    H --> I[Export VS Code editor vars]
-    I --> J[Set PATH with user/local/homebrew bins]
+    C --> D[Export required environment vars]
+    D --> J[Set PATH with user/local/homebrew bins]
     J --> K[Remove PATH duplicates]
     K --> L{Interactive shell?}
 
-    L -->|Yes| M[Call setup_gitconfig_symlink]
+    L -->|Yes| N{~/.gitconfig exists?}
     L -->|No| END1[End .zshenv]
 
-    M --> N{~/.gitconfig symlink exists?}
-    N -->|Yes| O{Points to correct target?}
-    N -->|No| P[Check target file exists]
+    N -->|Yes| O{Is a symlink pointing to correct target?}
+    N -->|No| V
 
     O -->|Yes| Q[Skip symlink creation]
-    O -->|No| P
+    O -->|No| T{Existing ~/.gitconfig is a file, not a symlink?}
 
-    P --> R{Target exists and is file?}
-    R -->|No| S[Show warning, skip symlink]
-    R -->|Yes| T{Existing ~/.gitconfig is file?}
 
     T -->|Yes| U[Backup existing file]
     T -->|No| V[Create symlink]
     U --> V
-    V --> W[Show success message]
+    V --> Y
 
-    Q --> X[Continue to .zprofile]
-    S --> X
-    W --> X
+    Q --> Y[Load .zprofile]
 
-    X --> Y[Load .zprofile]
     Y --> Z[Session setup for login shells]
-    Z --> AA[Continue to .zshrc]
+    Z --> BB[Load .zshrc]
 
-    AA --> BB[Load .zshrc]
     BB --> CC{P10k instant prompt cached?}
     CC -->|Yes| DD[Source P10k instant prompt]
     CC -->|No| EE[Skip instant prompt]
@@ -177,27 +165,9 @@ flowchart TD
 
     MM --> OO[Source antidote.zsh]
     NN --> OO
-    OO --> PP[Run antidote load]
+    OO --> QQ[Load all plugins from .zsh_plugins.txt]
+    QQ --> HHH[Source .zshrc.d configs]
 
-    PP --> QQ[Load plugins from .zsh_plugins.txt]
-    QQ --> RR[mattmc3/ez-compinit - Fast completion]
-    RR --> SS[zsh-users/zsh-completions]
-    SS --> TT[ohmyzsh/ohmyzsh vscode plugin]
-    TT --> UU[belak/zsh-utils editor keybindings]
-    UU --> VV[chrissicool/zsh-256color]
-    VV --> WW[romkatv/powerlevel10k theme]
-    WW --> XX[zdharma-continuum/fast-syntax-highlighting]
-    XX --> YY[zsh-users/zsh-autosuggestions]
-    YY --> ZZ[ohmyzsh git plugin]
-    ZZ --> AAA[lukechilds/zsh-nvm]
-    AAA --> BBB[ohmyzsh yarn plugin]
-    BBB --> CCC[ohmyzsh iterm2 plugin]
-    CCC --> DDD[ohmyzsh eza plugin]
-    DDD --> EEE[ohmyzsh direnv plugin]
-    EEE --> FFF[atuinsh/atuin history]
-    FFF --> GGG[Local code-wait plugin]
-
-    GGG --> HHH[Source .zshrc.d configs]
     HHH --> III[Loop through all .zshrc.d/*.zsh files, skipping filenames starting with ~]
 
     III --> LLL[Source .p10k.zsh theme config]
