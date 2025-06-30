@@ -38,26 +38,65 @@ Install Zsh, Curl, and Git if they are not already installed.
 #### Ubuntu/Debian
 
 ```bash
-$ sudo apt update && \
-   sudo apt install zsh curl git && \
-   chsh -s $(which zsh)
+$ sudo apt update
+$ sudo apt install zsh curl git
+$ chsh -s $(which zsh)
 ```
+
+Logout and log back in to apply the changes.
 
 #### Fedora
 
 ```bash
-$ sudo dnf install zsh curl git && \
-   chsh -s $(which zsh)
+$ sudo dnf install zsh curl git
+$ chsh -s $(which zsh)
 ```
+
+Logout and log back in to apply the changes.
 
 #### Arch Linux
 
 ```bash
-$ sudo pacman -S zsh curl git && \
-   chsh -s $(which zsh)
+$ sudo pacman -S zsh curl git
+$ chsh -s $(which zsh)
 ```
 
+Logout and log back in to apply the changes.
+
+### Intial configuration for Zsh
+
+When you first log in, Zsh will prompt you to configure it. You can skip this step by pressing `q`, as Dotfiles will handle the configuration for you. If you want to proceed with the initial configuration, you can follow the prompts.
+
+Example output when you first log in:
+
+```txt
+This is the Z Shell configuration function for new users,
+zsh-newuser-install.
+You are seeing this message because you have no zsh startup files
+(the files .zshenv, .zprofile, .zshrc, .zlogin in the directory
+~).  This function can help you with a few settings that should
+make your use of the shell easier.
+
+You can:
+
+(q)  Quit and do nothing.  The function will be run again next time.
+
+(0)  Exit, creating the file ~/.zshrc containing just a comment.
+     That will prevent this function being run again.
+
+(1)  Continue to the main menu.
+
+(2)  Populate your ~/.zshrc with the configuration recommended
+     by the system administrator and exit (you will need to edit
+     the file by hand, if so desired).
+
+--- Type one of the keys in parentheses ---
+```
+
+If you skip the Zsh configuration, you'll have a minimal Zsh shell with almost no features during this installation. This is fine, because Dotfiles will set up everything you need.
+
 ### Install Homebrew for Linux
+
 
 Homebrew is a package manager that simplifies the installation of software on Linux systems.
 
@@ -119,6 +158,13 @@ Install Node Version Manager (nvm), a tool that allows you to manage multiple ve
 $ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 ```
 
+Run the following command to load nvm into your current shell session. This is a temporary setup step. When Dotfiles is fully installed, it will automatically load nvm in future sessions.
+
+```bash
+$ export NVM_DIR="$HOME/.nvm"
+$ [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+```
+
 Install Node.js with nvm. This ensures you have the latest LTS version of Node.js, which is often required for many development tools and frameworks.
 
 ```bash
@@ -132,11 +178,10 @@ Upgrade npm to the latest version.
 $ npm install -g npm
 ```
 
-Install Yarn v4 (Berry) globally.
+Enable Yarn v4 (Berry).
 
 ```bash
 $ corepack enable
-$ npm install -g yarn
 ```
 
 ## Local Git configuration
@@ -215,7 +260,14 @@ $ echo "source ~/.config/dotfiles/zsh/.zshenv" > ~/.zshenv
 
 ### Activate Dotfiles
 
-Restart your terminal to activate the new configuration. If everything is set up correctly, you should see the PowerLevel10k prompt and have access to all the tools installed by Dotfiles.
+Restart your terminal to activate the new configuration. You should see Dotfiles bootstrap itself by:
+
+- Creating a new symlink from `~/.gitconfig` to `~/.config/dotfiles/git/.gitconfig`
+- Cloning the Antidote repo
+
+You may be promoted to accept the host fingerprint for `github.com`. If you are, type `yes` to continue. Cloning Antidote and the plugins may take a few minutes, depending on your internet connection.
+
+Next, restart your terminal again to load the new configuration. You should see the multi-line PowerLevel10k prompt with your current working directory on the first line and a `$` prompt on the second line.
 
 ## Optional Linux-Specific Setup
 
@@ -246,8 +298,3 @@ PowerLevel10k is a theme for Zsh that provides a beautiful and informative promp
 ```bash
 $ p10k configure
 ```
-
-## Troubleshooting
-
-- If you encounter permission issues with Homebrew, ensure `/home/linuxbrew/.linuxbrew` is owned by your user
-- If zsh doesn't activate after `chsh`, log out and log back in
